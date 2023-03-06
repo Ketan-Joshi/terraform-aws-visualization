@@ -1,8 +1,8 @@
 module "prometheus" {
     source = "../"
-    instance_type_visulization = "t3.medium"
-    volume_size_visulization = "30"
-    pem_key_name = "visulization"
+    instance_type_visualization = "t3.medium"
+    volume_size_visualization = "30"
+    pem_key_name = "visualization"
     environment = "qa"
     vpc_cidr_block = ""
     vpc_id = ""

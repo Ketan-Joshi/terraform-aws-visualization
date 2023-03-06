@@ -15,28 +15,28 @@ data "template_file" "userdata" {
     elasticsearch_endpoint = var.elasticsearch_endpoint
   }
 }
-resource "aws_instance" "visulization" {
+resource "aws_instance" "visualization" {
   ami = "ami-0b5eea76982371e91"
-  instance_type = var.instance_type_visulization
+  instance_type = var.instance_type_visualization
   user_data = data.template_file.userdata.rendered
   key_name = var.pem_key_name
   subnet_id = var.subnet_id
   disable_api_termination = true
-  vpc_security_group_ids = [aws_security_group.visulization_sg.id]
+  vpc_security_group_ids = [aws_security_group.visualization_sg.id]
   # associate_public_ip_address = true
   ebs_block_device {
     device_name = "/dev/xvda"
-    volume_size = var.volume_size_visulization
+    volume_size = var.volume_size_visualization
   }
   depends_on = [
     aws_key_pair.ssh_key
   ]
   tags = {
-    Name = "nw-social-visulization-${var.environment}"
+    Name = "nw-social-visualization-${var.environment}"
   }
 }
-resource "aws_security_group" "visulization_sg" {
-  name = "nw-social-visulization-${var.environment}-sg"
+resource "aws_security_group" "visualization_sg" {
+  name = "nw-social-visualization-${var.environment}-sg"
   vpc_id =  var.vpc_id
   ingress {
     description = "ingress rules"
@@ -67,6 +67,6 @@ resource "aws_security_group" "visulization_sg" {
     to_port = 0
   }
   tags = {
-    Name = "nw-social-visulization-${var.environment}-sg"
+    Name = "nw-social-visualization-${var.environment}-sg"
   }
 }
