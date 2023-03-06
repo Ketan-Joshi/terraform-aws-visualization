@@ -25,9 +25,18 @@ systemctl enable --now kibana
 ## for installing the grafana ##
 ################################
 echo "+++installing Grafana++"
-wget https://dl.grafana.com/enterprise/release/grafana-enterprise-9.3.6-1.x86_64.rpm
-sudo yum install -y grafana-enterprise-9.3.6-1.x86_64.rpm
+sudo amazon-linux-extras install epel -y
+sudo yum install -y chromium
+wget https://dl.grafana.com/enterprise/release/grafana-enterprise-8.5.21-1.x86_64.rpm 
+sudo yum install grafana-enterprise-8.5.21-1.x86_64.rpm -y
 
 sudo systemctl daemon-reload
 sudo systemctl start grafana-server
 sudo systemctl enable grafana-server
+sudo grafana-cli plugins install grafana-image-renderer
+sudo sed -i 's/;provider =/provider = local/' /etc/grafana/grafana.ini
+sudo sed -i "s@;domain = localhost@domain=http://social-grafana-qa.tothenew.net@"  /etc/grafana/grafana.ini
+sudo sed -i "s@;root_url = %(protocol)s://%(domain)s:%(http_port)s/@root_url=http://social-grafana-qa.tothenew.net@"  /etc/grafana/grafana.ini
+sudo sed -i "s/;http_port = 3000/http_port = 3000/"  /etc/grafana/grafana.ini
+sudo sed -i "s/;protocol = http/protocol = http/"  /etc/grafana/grafana.ini
+sudo systemctl restart grafana-server
