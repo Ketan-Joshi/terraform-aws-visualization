@@ -10,7 +10,7 @@ resource "aws_key_pair" "ssh_key" {
   }
 }
 data "template_file" "userdata" {
-  template = file("${path.module}/visulization.sh")
+  template = file("${path.module}/visualization.sh")
   vars = {
     elasticsearch_endpoint = var.elasticsearch_endpoint
   }
