@@ -47,14 +47,14 @@ resource "aws_security_group" "visualization_sg" {
   }
   ingress {
     description = "ingress rules"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [var.vpc_cidr_block,"182.71.160.184/29","61.12.91.216/29"]
     from_port = 5601
     protocol = "tcp"
     to_port = 5601
   }
   ingress {
     description = "ingress rules"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [var.vpc_cidr_block,"182.71.160.184/29","61.12.91.216/29"]
     from_port = 3000
     protocol = "tcp"
     to_port = 3000
