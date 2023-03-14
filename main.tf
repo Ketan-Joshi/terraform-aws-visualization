@@ -22,6 +22,7 @@ resource "aws_instance" "visualization" {
   key_name = var.pem_key_name
   subnet_id = var.subnet_id
   disable_api_termination = true
+  iam_instance_profile = aws_iam_instance_profile.rds_log_instance_profile.name
   vpc_security_group_ids = [aws_security_group.visualization_sg.id]
   # associate_public_ip_address = true
   ebs_block_device {
@@ -29,7 +30,7 @@ resource "aws_instance" "visualization" {
     volume_size = var.volume_size_visualization
   }
   depends_on = [
-    aws_key_pair.ssh_key
+    aws_key_pair.ssh_key,aws_iam_role.rds_log
   ]
   tags = {
     Name = "nw-social-visualization-${var.environment}"
@@ -69,4 +70,102 @@ resource "aws_security_group" "visualization_sg" {
   tags = {
     Name = "nw-social-visualization-${var.environment}-sg"
   }
+}
+resource "aws_iam_role" "rds_log" {
+  name = "visualization-rds-log-role-${var.environment}"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+    {
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }
+   ]
+  })
+}
+resource "aws_iam_role_policy_attachment" "rds_log_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsReadOnlyAccess"
+  role = aws_iam_role.rds_log.name
+}
+resource "aws_iam_role_policy_attachment" "ssm_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+  role = aws_iam_role.rds_log.name
+}
+resource "aws_iam_policy" "rds_log_policy" {
+  name    = "visualization-rds-log-policy-${var.environment}"
+  description = "Policy for RDS logs access"
+  policy   = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+    {
+      Sid = "AllowReadingMetricsFromCloudWatch",
+      Effect = "Allow",
+      Action = [
+        "cloudwatch:DescribeAlarmsForMetric",
+        "cloudwatch:DescribeAlarmHistory",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:ListMetrics",
+        "cloudwatch:GetMetricData",
+        "cloudwatch:GetInsightRuleReport"
+      ],
+      Resource = "*"
+    },
+    {
+      Sid = "AllowReadingLogsFromCloudWatch",
+      Effect = "Allow",
+      Action = [
+        "logs:DescribeLogGroups",
+        "logs:GetLogGroupFields",
+        "logs:StartQuery",
+        "logs:StopQuery",
+        "logs:GetQueryResults",
+        "logs:GetLogEvents"
+     ],
+      Resource = "*"
+    },
+    {
+      Sid = "AllowReadingTagsInstancesRegionsFromEC2",
+      Effect = "Allow",
+      Action = [
+        "ec2:DescribeTags",
+        "ec2:DescribeInstances",
+        "ec2:DescribeRegions"
+     ],
+      Resource = "*"
+    },
+    {
+      Sid = "AllowReadingResourcesForTags",
+      Effect = "Allow",
+      Action = "tag:GetResources",
+      Resource = "*"
+    },
+    {
+      Sid = "AllowXRAYAccess",
+      Effect = "Allow",
+      Action = [
+        "xray:BatchGetTraces",
+        "xray:GetTraceSummaries",
+        "xray:GetTraceGraph",
+        "xray:GetGroups",
+        "xray:GetTimeSeriesServiceStatistics",
+        "xray:GetInsightSummaries",
+        "xray:GetInsight",
+        "xray:GetServiceGraph",
+        "ec2:DescribeRegions"
+     ],
+      Resource = "*"
+    }
+   ]
+  })
+}
+resource "aws_iam_policy_attachment" "rds_log_policy_attachment" {
+  policy_arn = aws_iam_policy.rds_log_policy.arn
+  roles   = [aws_iam_role.rds_log.name]
+}
+resource "aws_iam_instance_profile" "rds_log_instance_profile" {
+  name = "visualization-rds-log-instance-profile-${var.environment}"
+  roles = [aws_iam_role.rds_log.name]
 }
