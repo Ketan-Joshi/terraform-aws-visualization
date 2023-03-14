@@ -162,10 +162,11 @@ resource "aws_iam_policy" "rds_log_policy" {
   })
 }
 resource "aws_iam_policy_attachment" "rds_log_policy_attachment" {
+  name       = "visualization-policy-attachment-${var.environment}"
   policy_arn = aws_iam_policy.rds_log_policy.arn
-  roles   = aws_iam_role.rds_log.name
+  roles   = [aws_iam_role.rds_log.name]
 }
 resource "aws_iam_instance_profile" "rds_log_instance_profile" {
   name = "visualization-rds-log-instance-profile-${var.environment}"
-  roles = aws_iam_role.rds_log.name
+  role = aws_iam_role.rds_log.name
 }
