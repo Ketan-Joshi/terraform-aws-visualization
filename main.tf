@@ -13,6 +13,7 @@ data "template_file" "userdata" {
   template = file("${path.module}/visualization.sh")
   vars = {
     elasticsearch_endpoint = var.elasticsearch_endpoint
+    environment = var.environment
   }
 }
 resource "aws_instance" "visualization" {
@@ -92,6 +93,10 @@ resource "aws_iam_role_policy_attachment" "rds_log_policy" {
 }
 resource "aws_iam_role_policy_attachment" "ssm_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+  role = aws_iam_role.rds_log.name
+}
+resource "aws_iam_role_policy_attachment" "cw_agent_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
   role = aws_iam_role.rds_log.name
 }
 resource "aws_iam_policy" "rds_log_policy" {
