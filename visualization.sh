@@ -18,7 +18,8 @@ sudo systemctl start amazon-ssm-agent
 sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb
 sudo apt-get -f install
 sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
-echo '
+
+cat <<EOF >>/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent.json
 {
     "agent": {
         "metrics_collection_interval": 60,
@@ -50,9 +51,9 @@ echo '
  "aggregation_dimensions" : [ ["InstanceId", "InstanceType"]]
     }
 }
-'>/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent.json
+EOF
+
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent.json
-# restart amazon-cloudwatch-agent.service
 sudo systemctl restart amazon-cloudwatch-agent.service
 
 ########################################
