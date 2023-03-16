@@ -15,44 +15,40 @@ sudo systemctl start amazon-ssm-agent
 #################################
 ## for installing the CW-agent ##
 #################################
-sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb
-sudo apt-get -f install
-sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
-
-cat <<EOF >>/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent.json
+cd /opt && wget https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm && rpm -U ./amazon-cloudwatch-agent.rpm
+echo '
 {
-    "agent": {
-        "metrics_collection_interval": 60,
-        "run_as_user": "cwagent"
-    },
-    "metrics": {
-        "append_dimensions": {
-            "ImageId": "\${aws:ImageId}",
-            "InstanceId": "\${aws:InstanceId}",
-            "InstanceType": "\${aws:InstanceType}"
-        },
-        "metrics_collected": {
-            "disk": {
-                "measurement": [
-                    "used_percent"
-                ],
+        "agent": {
                 "metrics_collection_interval": 60,
-                "resources": [
-                    "*"
-                ]
-            },
-            "mem": {
-                "measurement": [
-                    "mem_used_percent"
-                ],
-                "metrics_collection_interval": 60
-            }
+                "run_as_user": "cwagent"
         },
- "aggregation_dimensions" : [ ["InstanceId", "InstanceType"]]
-    }
+        "metrics": {
+                "append_dimensions": {
+                        "ImageId": "${aws:ImageId}",
+                        "InstanceId": "${aws:InstanceId}",
+                        "InstanceType": "${aws:InstanceType}"
+                },
+                "metrics_collected": {
+                        "disk": {
+                                "measurement": [
+                                        "used_percent"
+                                ],
+                                "metrics_collection_interval": 60,
+                                "resources": [
+                                        "*"
+                                ]
+                        },
+                        "mem": {
+                                "measurement": [
+                                        "mem_used_percent"
+                                ],
+                                "metrics_collection_interval": 60
+                        }
+                },
+  "aggregation_dimensions" : [ ["InstanceId", "InstanceType"]]
+        }
 }
-EOF
-
+'>/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent.json
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent.json
 sudo systemctl restart amazon-cloudwatch-agent.service
 
