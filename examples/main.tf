@@ -1,4 +1,4 @@
-module "prometheus" {
+module "visualization" {
     source = "../"
     instance_type_visualization = "t3.medium"
     volume_size_visualization = "30"
