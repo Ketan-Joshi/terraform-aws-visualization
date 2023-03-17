@@ -25,9 +25,9 @@ cat <<EOF >>/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent.json
         },
         "metrics": {
                 "append_dimensions": {
-                        "ImageId": "${aws:ImageId}",
-                        "InstanceId": "${aws:InstanceId}",
-                        "InstanceType": "${aws:InstanceType}"
+                        "ImageId": "\$\{aws\:ImageId\}",
+                        "InstanceId": "\$\{aws\:InstanceId\}",
+                        "InstanceType": "\$\{aws\:InstanceType\}"
                 },
                 "metrics_collected": {
                         "disk": {
