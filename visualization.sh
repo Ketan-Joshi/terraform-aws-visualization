@@ -92,8 +92,8 @@ data = /var/lib/grafana
 [server]
 protocol = http
 http_port = 3000
-domain = https://social-grafana-$environment.tothenew.com/
-root_url =https://social-grafana-$environment.tothenew.com/
+domain = https://social-grafana-$environment.tothenew.net/
+root_url =https://social-grafana-$environment.tothenew.net/
 
 #################################### Alerting ############################
 [alerting]
